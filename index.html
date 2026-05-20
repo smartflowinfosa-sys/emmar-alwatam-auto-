@@ -7,8 +7,13 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#800000">
-    <link rel="apple-touch-icon" href="icon-192x192.png">
-
+    
+    <link rel="apple-touch-icon" href="logo-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="logo-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo-512.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="إعمار الوطن">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -266,7 +271,6 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             
-            // تحديث الزر النشط في شريط التصفح السفلي بناءً على القسم
             const tabButtons = {
                 'home': 0, 'products': 1, 'orders': 2, 'account': 3
             };
@@ -375,7 +379,7 @@
 
             if(!isValid) return;
 
-            // إظهار شاشة النجاح الكاملة بدلاً من alert
+            // إظهار شاشة النجاح الكاملة المحدثة
             document.getElementById('success-modal').classList.add('show');
             
             addMockOrder(orderDetails);
@@ -389,7 +393,7 @@
 
         function closeSuccessModal() {
             document.getElementById('success-modal').classList.remove('show');
-            switchTab('orders'); // توجيه العميل تلقائياً لصفحة الطلبات ليرى طلبه الجديد
+            switchTab('orders'); // التوجيه التلقائي لسجل الطلبات
         }
 
         // --- 7. إضافة الطلب للجدول ---
