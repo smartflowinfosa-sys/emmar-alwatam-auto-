@@ -1,14 +1,13 @@
-const CACHE_NAME = 'emaar-v2'; // تغيير الاسم هنا يجبر الآيفون على التحديث
+const CACHE_NAME = 'emaar-v3';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  './logo-192.png',
-  './logo-512.png'
+  './app-icon.png'
 ];
 
 self.addEventListener('install', event => {
-  self.skipWaiting(); // تفعيل النسخة الجديدة فوراً دون انتظار
+  self.skipWaiting(); 
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -23,7 +22,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cache => {
           if (cache !== CACHE_NAME) {
-            return caches.delete(cache); // تنظيف وحذف الكاش القديم v1
+            return caches.delete(cache); 
           }
         })
       );
