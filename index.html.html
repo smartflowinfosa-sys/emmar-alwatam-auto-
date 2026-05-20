@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إعمار الوطن | بوابة العملاء</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#800000">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- متغيرات الهوية البصرية --- */
+        :root {
+            --brand-red: #800000;
+            --brand-red-hover: #b91c1c;
+            --brand-dark: #2d3748;
+            --brand-light: #f7fafc;
+            --white: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
+        /* --- الإعدادات الأساسية --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--brand-light); color: var(--brand-dark); line-height: 1.6; }
+
+        /* --- الهيدر العلوي --- */
+        .top-header { background-color: var(--white); padding: 15px; text-align: center; font-size: 22px; font-weight: 700; color: var(--brand-red); box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 999; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .top-header img { height: 35px; width: auto; object-fit: contain; }
+
+        /* --- شريط التصفح السفلي (نظام الجوال) --- */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--white); box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-around; padding: 10px 0; border-top: 3px solid var(--brand-red); z-index: 1000; }
+        .nav-btn { background: none; border: none; font-size: 13px; font-weight: 600; color: #718096; cursor: pointer; padding: 5px; flex-grow: 1; text-align: center; transition: all 0.3s ease; }
+        .nav-btn i { font-size: 22px; margin-bottom: 5px; display: block; }
+        .nav-btn.active { color: var(--brand-red); }
+
+        /* --- الحاوية --- */
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px 90px 20px; }
+        .section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- العناوين العامة --- */
+        .section-header { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); }
+        .section-header h2 { color: var(--brand-red); font-size: 24px; }
+
+        /* --- 1. الصفحة الرئيسية --- */
+        .hero { background: var(--white); padding: 30px 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center; border-top: 4px solid var(--brand-dark); }
+        .hero h1 { font-size: 28px; margin-bottom: 15px; color: var(--brand-dark); }
+        .hero p { font-size: 16px; color: #718096; margin-bottom: 30px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 15px; margin-top: 20px; }
+        @media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+        .stat-card { background: var(--brand-light); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .stat-card i { font-size: 26px; color: var(--brand-red); margin-bottom: 10px; }
+        .stat-card h3 { font-size: 18px; color: var(--brand-dark); }
+        .stat-card p { font-size: 14px; margin: 0; }
+
+        /* --- 2. المنتجات (الكتالوج) --- */
+        .catalog-topbar { margin-bottom: 15px; text-align: center; font-size: 16px; font-weight: bold; color: var(--brand-dark); }
+        
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .product-card { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; border: 2px solid transparent; transition: 0.3s; display: flex; flex-direction: column; }
+        .product-card.selected { border-color: var(--brand-red); }
+        .checkbox-wrapper { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; }
+        .checkbox-wrapper input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--brand-red); }
+        .product-img { width: 100%; height: 140px; object-fit: cover; background: #edf2f7; cursor: pointer; }
+        .product-info { padding: 10px; display: flex; flex-direction: column; flex-grow: 1; cursor: pointer; }
+        .product-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: var(--brand-dark); }
+        .product-price { font-size: 16px; font-weight: bold; color: var(--brand-red); margin-bottom: 10px; }
+        
+        /* خانة الكمية */
+        .qty-input { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; text-align: center; outline: none; margin-top: auto; }
+        .qty-input:focus { border-color: var(--brand-red); }
+        .qty-input:disabled { background-color: #f1f5f9; cursor: not-allowed; }
+
+        /* زر التسعيرة الجديد (أسفل الصفحة) */
+        .submit-quote-btn-bottom { background-color: var(--brand-red); color: white; border: none; padding: 10px 25px; border-radius: 25px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; gap: 8px; align-items: center; justify-content: center; margin: 25px auto 10px auto; width: max-content; box-shadow: 0 4px 10px rgba(128,0,0,0.2); }
+        .submit-quote-btn-bottom:active { transform: scale(0.96); }
+        .badge { background: white; color: var(--brand-red); padding: 2px 6px; border-radius: 10px; font-size: 12px; }
+
+        /* --- نافذة التفاصيل (Modal) --- */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; padding: 20px; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-content { background: var(--white); width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; position: relative; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(20px); } to { transform: translateY(0); } }
+        .close-modal { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.8); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer; color: var(--brand-dark); z-index: 10; display: flex; justify-content: center; align-items: center; }
+        .modal-img { width: 100%; height: 250px; object-fit: cover; }
+        .modal-body { padding: 20px; }
+        .modal-title { font-size: 20px; font-weight: bold; color: var(--brand-dark); margin-bottom: 5px; }
+        .modal-desc { font-size: 14px; color: #718096; margin-bottom: 15px; }
+
+        /* --- نافذة نجاح الطلب (شاشة كاملة) --- */
+        .success-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--white); z-index: 3000; justify-content: center; align-items: center; flex-direction: column; padding: 20px; text-align: center; opacity: 0; transition: opacity 0.3s; }
+        .success-overlay.show { display: flex; opacity: 1; }
+        .success-icon { color: #22c55e; font-size: 80px; margin-bottom: 20px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        .success-text { font-size: 22px; font-weight: bold; color: var(--brand-dark); margin-bottom: 30px; line-height: 1.5; }
+        .success-btn { background-color: var(--brand-red); color: white; border: none; padding: 12px 40px; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(128,0,0,0.2); }
+
+        /* --- 3. الطلبات --- */
+        .orders-table { width: 100%; border-collapse: collapse; background: var(--white); box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-radius: 8px; overflow: hidden; font-size: 13px; }
+        .orders-table th, .orders-table td { padding: 12px 10px; text-align: right; border-bottom: 1px solid var(--border-color); }
+        .orders-table th { background-color: var(--brand-dark); color: var(--white); font-weight: 600; }
+        .status { padding: 4px 8px; border-radius: 20px; font-size: 11px; font-weight: bold; white-space: nowrap; }
+        .status.sent { background: #c6f6d5; color: #22543d; }
+
+        /* --- 4. الحساب --- */
+        .account-card { background: var(--white); padding: 25px 20px; border-radius: 12px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--brand-dark); font-size: 14px; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 15px; outline: none; }
+        .form-group input:focus { border-color: var(--brand-red); }
+        .save-btn { width: 100%; background-color: var(--brand-dark); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;}
+        .account-note { font-size: 12px; color: #718096; text-align: center; margin-top: 15px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <img src="logo.png" alt="شعار إعمار الوطن">
+        <span>إعمار الوطن</span>
+    </header>
+
+    <div class="container">
+        
+        <div id="home" class="section active">
+            <div class="hero">
+                <h1>مرحباً بك في بوابة عملاء إعمار الوطن</h1>
+                <p>تصفح أحدث أنواع السيراميك والبورسلان، واطلب تسعيرتك لتصلك فوراً.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <h3>+50</h3>
+                        <p>صنف متوفر</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-bolt"></i>
+                        <h3>تسعير فوري و آلي</h3>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <h3>خدمة ذاتية</h3>
+                        <p>عروض أسعار دون انتظار المندوب</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="products" class="section">
+            <div class="section-header">
+                <h2>المنتجات</h2>
+            </div>
+            
+            <div class="catalog-topbar">
+                حدد المنتجات
+            </div>
+
+            <div class="products-grid" id="products-container">
+                </div>
+
+            <button class="submit-quote-btn-bottom" onclick="sendQuoteRequest()">
+                <i class="fa-solid fa-file-invoice"></i>
+                طلب تسعيرة للمحدد
+                <span class="badge" id="selected-count">0</span>
+            </button>
+        </div>
+
+        <div id="orders" class="section">
+            <div class="section-header">
+                <h2>سجل طلبات التسعير</h2>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>التاريخ</th>
+                            <th>المنتجات المطلوبة (بالكميات)</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-container">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="account" class="section">
+            <div class="section-header">
+                <h2>الملف الشخصي</h2>
+            </div>
+            <div class="account-card">
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <input type="text" id="user-name" placeholder="أدخل اسمك الكامل هنا">
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="user-email" placeholder="أدخل بريدك الإلكتروني هنا">
+                </div>
+                <div class="form-group">
+                    <label>اسم الشركة</label>
+                    <input type="text" id="user-company" placeholder="أدخل اسم الشركة">
+                </div>
+                <button class="save-btn" onclick="alert('تم حفظ البيانات بنجاح')">حفظ التعديلات</button>
+                <div class="account-note">
+                    سيتم استخدام هذه البيانات (الاسم، الإيميل، اسم الشركة) لإصدار عرض السعر وإرساله لك. يمكنك تعديلها في أي وقت.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="product-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()"><i class="fa-solid fa-times"></i></button>
+            <img src="" id="modal-img" class="modal-img" alt="صورة المنتج">
+            <div class="modal-body">
+                <div class="modal-title" id="modal-title">اسم المنتج</div>
+                <div class="modal-desc" id="modal-desc">وصف المنتج سيظهر هنا...</div>
+                <div class="product-price" id="modal-price" style="margin:0;">السعر</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-modal" class="success-overlay">
+        <i class="fa-solid fa-circle-check success-icon"></i>
+        <div class="success-text">تم استلام طلبكم سيتم ارسال عرض السعر على الايميل خلال ثواني</div>
+        <button class="success-btn" onclick="closeSuccessModal()">إغلاق ومتابعة الطلبات</button>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="switchTab('home')">
+            <i class="fa-solid fa-house"></i>الرئيسية
+        </button>
+        <button class="nav-btn" onclick="switchTab('products')">
+            <i class="fa-solid fa-box-open"></i>المنتجات
+        </button>
+        <button class="nav-btn" onclick="switchTab('orders')">
+            <i class="fa-solid fa-list-check"></i>الطلبات
+        </button>
+        <button class="nav-btn" onclick="switchTab('account')">
+            <i class="fa-solid fa-user"></i>الحساب
+        </button>
+    </nav>
+
+    <script>
+        // --- تسجيل الـ Service Worker ليعمل كـ PWA ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('Service Worker Registered!', reg);
+                }).catch(err => {
+                    console.log('Service Worker Registration Failed', err);
+                });
+            });
+        }
+
+        // --- 1. التنقل بين الأقسام ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            // تحديث الزر النشط في شريط التصفح السفلي بناءً على القسم
+            const tabButtons = {
+                'home': 0, 'products': 1, 'orders': 2, 'account': 3
+            };
+            const btnElements = document.querySelectorAll('.nav-btn');
+            if(btnElements[tabButtons[tabId]]) {
+                btnElements[tabButtons[tabId]].classList.add('active');
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        // --- 2. بيانات المنتجات ---
+        const productsData = [
+            { id: 'B001', name: '60*60 اسباني نخب أول', price: '25', desc: 'سيراميك إسباني فاخر نخب أول، يتميز بمقاومة عالية للخدوش وسهولة في التنظيف.', img: 'https://images.unsplash.com/photo-1600607688969-a5bfcd64bd28?auto=format&fit=crop&w=400&q=80' },
+            { id: 'B002', name: '120*60 وطني', price: '40', desc: 'بورسلان وطني عالي الجودة، مثالي للصالات الكبيرة والمجالس، ألوان ثابتة لا تتغير.', img: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=400&q=80' },
+            { id: 'B003', name: '200*200 هندي', price: '70', desc: 'بلاط هندي سميك يتحمل الأوزان الثقيلة، مناسب للأحواش والمواقف الخارجية.', img: 'https://images.unsplash.com/photo-1582582494705-f8ce0b0c24f0?auto=format&fit=crop&w=400&q=80' },
+            { id: 'B004', name: '200*400 صيني', price: '35', desc: 'بلاط صيني اقتصادي بتصاميم عصرية تناسب جميع الأذواق والميزانيات.', img: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=400&q=80' }
+        ];
+
+        // --- 3. بناء المنتجات ---
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            productsData.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.id = `card-${product.id}`;
+                card.innerHTML = `
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="check-${product.id}" onchange="toggleSelection('${product.id}', this)">
+                    </div>
+                    <img src="${product.img}" class="product-img" onclick="openModal('${product.id}')">
+                    <div class="product-info" onclick="openModal('${product.id}')">
+                        <div class="product-title">${product.name}</div>
+                        <div class="product-price">${product.price} ريال / م2</div>
+                    </div>
+                    <input type="number" id="qty-${product.id}" class="qty-input" placeholder="الكمية المطلوبة (متر)" min="1" disabled>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- 4. إدارة التحديد وفتح خانة الكمية ---
+        let selectedCount = 0;
+        function toggleSelection(productId, checkbox) {
+            const cardElement = document.getElementById(`card-${productId}`);
+            const qtyInput = document.getElementById(`qty-${productId}`);
+            
+            if (checkbox.checked) {
+                cardElement.classList.add('selected');
+                qtyInput.disabled = false;
+                qtyInput.focus();
+                selectedCount++;
+            } else {
+                cardElement.classList.remove('selected');
+                qtyInput.disabled = true;
+                qtyInput.value = '';
+                selectedCount--;
+            }
+            document.getElementById('selected-count').innerText = selectedCount;
+        }
+
+        // --- 5. نافذة التفاصيل ---
+        function openModal(productId) {
+            const product = productsData.find(p => p.id === productId);
+            if(product) {
+                document.getElementById('modal-img').src = product.img;
+                document.getElementById('modal-title').innerText = product.name;
+                document.getElementById('modal-desc').innerText = product.desc;
+                document.getElementById('modal-price').innerText = product.price + ' ريال / م2';
+                document.getElementById('product-modal').classList.add('show');
+            }
+        }
+        function closeModal() {
+            document.getElementById('product-modal').classList.remove('show');
+        }
+        // إغلاق النافذة عند الضغط خارجها
+        document.getElementById('product-modal').addEventListener('click', function(e) {
+            if(e.target === this) closeModal();
+        });
+
+        // --- 6. إرسال الطلب (محاكاة) وإظهار الشاشة الكاملة ---
+        function sendQuoteRequest() {
+            const checkedBoxes = document.querySelectorAll('.checkbox-wrapper input:checked');
+            if (checkedBoxes.length === 0) {
+                alert("يرجى تحديد منتج واحد على الأقل وإدخال الكمية!");
+                return;
+            }
+
+            let orderDetails = [];
+            let isValid = true;
+
+            checkedBoxes.forEach(cb => {
+                const pId = cb.id.replace('check-', '');
+                const product = productsData.find(p => p.id === pId);
+                const qty = document.getElementById(`qty-${pId}`).value;
+                
+                if(!qty || qty <= 0) {
+                    alert(`الرجاء إدخال الكمية المطلوبة للمنتج: ${product.name}`);
+                    isValid = false;
+                    return;
+                }
+                orderDetails.push(`${product.name} (${qty} متر)`);
+            });
+
+            if(!isValid) return;
+
+            // إظهار شاشة النجاح الكاملة بدلاً من alert
+            document.getElementById('success-modal').classList.add('show');
+            
+            addMockOrder(orderDetails);
+            
+            // تصفير الاختيارات بعد الإرسال
+            checkedBoxes.forEach(cb => {
+                cb.checked = false;
+                toggleSelection(cb.id.replace('check-', ''), cb);
+            });
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.remove('show');
+            switchTab('orders'); // توجيه العميل تلقائياً لصفحة الطلبات ليرى طلبه الجديد
+        }
+
+        // --- 7. إضافة الطلب للجدول ---
+        function addMockOrder(productsArray) {
+            const tbody = document.getElementById('orders-container');
+            const tr = document.createElement('tr');
+            const orderId = 'REQ-' + Math.floor(Math.random() * 10000);
+            
+            tr.innerHTML = `
+                <td><strong>${orderId}</strong></td>
+                <td>${new Date().toLocaleDateString()}</td>
+                <td>${productsArray.join(' <br> ')}</td>
+                <td><span class="status sent">قيد الإرسال</span></td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild);
+        }
+
+        window.onload = () => {
+            renderProducts();
+            addMockOrder(['60*60 اسباني نخب أول (50 متر)']);
+        };
+    </script>
+</body>
+</html>
