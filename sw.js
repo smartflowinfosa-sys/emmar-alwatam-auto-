@@ -1,4 +1,4 @@
-const CACHE_NAME = 'emaar-v3';
+const CACHE_NAME = 'emaar-v4';
 const urlsToCache = [
   './',
   './index.html',
@@ -9,10 +9,7 @@ const urlsToCache = [
 self.addEventListener('install', event => {
   self.skipWaiting(); 
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
 });
 
@@ -26,15 +23,25 @@ self.addEventListener('activate', event => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim()) // إجبار التطبيق على السيطرة الفورية
   );
 });
 
+// الاستراتيجية الذكية: الإنترنت أولاً (Network First)
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        return response || fetch(event.request);
+        // إذا كان هناك إنترنت، اجلب التحديث الجديد من Vercel واحفظه
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(event.request, responseClone);
+        });
+        return response;
+      })
+      .catch(() => {
+        // إذا لم يكن هناك إنترنت، افتح النسخة المخزنة في الجوال
+        return caches.match(event.request);
       })
   );
 });
