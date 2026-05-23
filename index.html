@@ -106,12 +106,15 @@
         .success-text { font-size: 22px; font-weight: bold; color: var(--brand-dark); margin-bottom: 30px; line-height: 1.5; }
         .success-btn { background-color: var(--brand-red); color: white; border: none; padding: 12px 40px; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(128,0,0,0.2); }
 
-        /* --- 3. الطلبات --- */
+        /* --- 3. الطلبات وتحديثات الألوان المضافة للتعديل الجديد --- */
         .orders-table { width: 100%; border-collapse: collapse; background: var(--white); box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-radius: 8px; overflow: hidden; font-size: 13px; }
         .orders-table th, .orders-table td { padding: 12px 10px; text-align: right; border-bottom: 1px solid var(--border-color); }
         .orders-table th { background-color: var(--brand-dark); color: var(--white); font-weight: 600; }
-        .status { padding: 4px 8px; border-radius: 20px; font-size: 11px; font-weight: bold; white-space: nowrap; }
-        .status.sent { background: #c6f6d5; color: #22543d; }
+        .status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; white-space: nowrap; display: inline-block; text-align: center; }
+        
+        /* تلوين الحالات بدقة حسب رغبتك */
+        .status.pending { background: #fefcbf; color: #975a16; } /* أصفر - قيد الإرسال */
+        .status.completed { background: #c6f6d5; color: #22543d; } /* أخضر - مكتمل */
 
         /* --- 4. الحساب --- */
         .account-card { background: var(--white); padding: 25px 20px; border-radius: 12px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
@@ -349,12 +352,11 @@
         function closeModal() {
             document.getElementById('product-modal').classList.remove('show');
         }
-        // إغلاق النافذة عند الضغط خارجها
         document.getElementById('product-modal').addEventListener('click', function(e) {
             if(e.target === this) closeModal();
         });
 
-        // --- 6. إرسال الطلب (محاكاة) وإظهار الشاشة الكاملة ---
+        // --- 6. إرسال الطلب وإظهار الشاشة الكاملة ---
         function sendQuoteRequest() {
             const checkedBoxes = document.querySelectorAll('.checkbox-wrapper input:checked');
             if (checkedBoxes.length === 0) {
@@ -383,7 +385,8 @@
             // إظهار شاشة النجاح الكاملة المحدثة
             document.getElementById('success-modal').classList.add('show');
             
-            addMockOrder(orderDetails);
+            // حقن الطلب الجديد في حالة "قيد الإرسال" (أصفر)
+            addDynamicOrder(orderDetails);
             
             // تصفير الاختيارات بعد الإرسال
             checkedBoxes.forEach(cb => {
@@ -394,27 +397,51 @@
 
         function closeSuccessModal() {
             document.getElementById('success-modal').classList.remove('show');
-            switchTab('orders'); // التوجيه التلقائي لسجل الطلبات
+            switchTab('orders'); // التوجيه التلقائي لسجل الطلبات لمشاهدة الحالة المباشرة
         }
 
-        // --- 7. إضافة الطلب للجدول ---
-        function addMockOrder(productsArray) {
+        // --- 7. التعديل الجديد والمحاكاة الذكية لتغير الألوان والحالة ---
+        function addDynamicOrder(productsArray) {
             const tbody = document.getElementById('orders-container');
             const tr = document.createElement('tr');
             const orderId = 'REQ-' + Math.floor(Math.random() * 10000);
             
+            // بناء الصف والحالة الأولية: قيد الإرسال (أصفر)
             tr.innerHTML = `
                 <td><strong>${orderId}</strong></td>
                 <td>${new Date().toLocaleDateString()}</td>
                 <td>${productsArray.join(' <br> ')}</td>
-                <td><span class="status sent">قيد الإرسال</span></td>
+                <td><span id="badge-${orderId}" class="status pending">قيد الإرسال</span></td>
             `;
             tbody.insertBefore(tr, tbody.firstChild);
+
+            // الحيلة السحرية للعميل: بعد 5 ثوانٍ، كأن n8n أرسل الإيميل، تتحول للون الأخضر (مكتمل)
+            setTimeout(() => {
+                const badge = document.getElementById(`badge-${orderId}`);
+                if (badge) {
+                    badge.className = 'status completed';
+                    badge.innerText = 'مكتمل';
+                }
+            }, 5000); // 5000 ملي ثانية = 5 ثوانٍ من الإبهار البصري للعميل
+        }
+
+        // دالة مخصصة لإنشاء طلبات افتراضية قديمة مكتملة وجاهزة عند تحميل الصفحة أول مرة
+        function addStaticOrder(orderId, date, items, statusClass, statusText) {
+            const tbody = document.getElementById('orders-container');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${orderId}</strong></td>
+                <td>${date}</td>
+                <td>${items.join(' <br> ')}</td>
+                <td><span class="status ${statusClass}">${statusText}</span></td>
+            `;
+            tbody.appendChild(tr);
         }
 
         window.onload = () => {
             renderProducts();
-            addMockOrder(['60*60 اسباني نخب أول (50 متر)']);
+            // حقن طلب قديم لكي لا تظهر الصفحة فارغة، ويظهر باللون الأخضر مكتملاً
+            addStaticOrder('REQ-8432', '2026/05/20', ['60*60 اسباني نخب أول (120 متر)'], 'completed', 'مكتمل');
         };
     </script>
 </body>
