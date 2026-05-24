@@ -18,6 +18,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
     <style>
         /* --- متغيرات الهوية البصرية --- */
         :root {
@@ -106,15 +108,13 @@
         .success-text { font-size: 22px; font-weight: bold; color: var(--brand-dark); margin-bottom: 30px; line-height: 1.5; }
         .success-btn { background-color: var(--brand-red); color: white; border: none; padding: 12px 40px; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(128,0,0,0.2); }
 
-        /* --- 3. الطلبات وتحديثات الألوان المضافة للتعديل الجديد --- */
+        /* --- 3. الطلبات --- */
         .orders-table { width: 100%; border-collapse: collapse; background: var(--white); box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-radius: 8px; overflow: hidden; font-size: 13px; }
         .orders-table th, .orders-table td { padding: 12px 10px; text-align: right; border-bottom: 1px solid var(--border-color); }
         .orders-table th { background-color: var(--brand-dark); color: var(--white); font-weight: 600; }
         .status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; white-space: nowrap; display: inline-block; text-align: center; }
-        
-        /* تلوين الحالات بدقة حسب رغبتك */
-        .status.pending { background: #fefcbf; color: #975a16; } /* أصفر - قيد الإرسال */
-        .status.completed { background: #c6f6d5; color: #22543d; } /* أخضر - مكتمل */
+        .status.pending { background: #fefcbf; color: #975a16; } 
+        .status.completed { background: #c6f6d5; color: #22543d; } 
 
         /* --- 4. الحساب --- */
         .account-card { background: var(--white); padding: 25px 20px; border-radius: 12px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
@@ -123,7 +123,7 @@
         .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 15px; outline: none; }
         .form-group input:focus { border-color: var(--brand-red); }
         .save-btn { width: 100%; background-color: var(--brand-dark); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;}
-        .account-note { font-size: 12px; color: #718096; text-align: center; margin-top: 15px; line-height: 1.5; }
+        .account-note { font-size: 12px; color: #e53e3e; text-align: center; margin-top: 15px; line-height: 1.5; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -200,24 +200,32 @@
 
         <div id="account" class="section">
             <div class="section-header">
-                <h2>الملف الشخصي</h2>
+                <h2>الملف الشخصي للمحل</h2>
             </div>
             <div class="account-card">
                 <div class="form-group">
-                    <label>الاسم الكامل</label>
-                    <input type="text" id="user-name" placeholder="أدخل اسمك الكامل هنا">
+                    <label>الاسم الكامل للمسؤول</label>
+                    <input type="text" id="user-name" placeholder="أدخل اسمك الكامل">
                 </div>
                 <div class="form-group">
-                    <label>البريد الإلكتروني</label>
-                    <input type="email" id="user-email" placeholder="أدخل بريدك الإلكتروني هنا">
+                    <label>رقم الجوال (الواتساب)</label>
+                    <input type="tel" id="user-phone" placeholder="أدخل رقم الجوال المعتمد">
                 </div>
                 <div class="form-group">
-                    <label>اسم الشركة</label>
-                    <input type="text" id="user-company" placeholder="أدخل اسم الشركة">
+                    <label>اسم الشركة / المحل التجاري</label>
+                    <input type="text" id="user-company" placeholder="أدخل اسم المحل أو مؤسستك التجارية">
                 </div>
-                <button class="save-btn" onclick="alert('تم حفظ البيانات بنجاح')">حفظ التعديلات</button>
+                <div class="form-group">
+                    <label>البريد الإلكتروني (الذي ستصل عليه الفاتورة)</label>
+                    <input type="email" id="user-email" placeholder="أدخل بريدك الإلكتروني">
+                </div>
+                <div class="form-group" style="border: 2px dashed var(--brand-red); padding: 15px; border-radius: 8px; background: #fff5f5;">
+                    <label style="color: var(--brand-red); font-weight: bold;"><i class="fa-solid fa-key"></i> كود تفعيل المحل المعتمد</label>
+                    <input type="text" id="store-code" placeholder="أدخل كود التحقق لمنع الطلبات العشوائية" style="text-transform: uppercase;">
+                </div>
+                <button class="save-btn" onclick="saveProfileData()">حفظ وتفعيل البيانات</button>
                 <div class="account-note">
-                    سيتم استخدام هذه البيانات (الاسم، الإيميل، اسم الشركة) لإصدار عرض السعر وإرساله لك. يمكنك تعديلها في أي وقت.
+                    * يرجى العلم: لن يقبل النظام أي طلب تسعير إذا كانت البيانات ناقصة أو كود تفعيل المحل غير مطابق لكود الإدارة.
                 </div>
             </div>
         </div>
@@ -286,33 +294,49 @@
             window.scrollTo(0, 0);
         }
 
-        // --- 2. بيانات المنتجات ---
-        const productsData = [
-            { id: 'B001', name: '60*60 اسباني نخب أول', price: '25', desc: 'سيراميك إسباني فاخر نخب أول، يتميز بمقاومة عالية للخدوش وسهولة في التنظيف.', img: 'https://images.unsplash.com/photo-1600607688969-a5bfcd64bd28?auto=format&fit=crop&w=400&q=80' },
-            { id: 'B002', name: '120*60 وطني', price: '40', desc: 'بورسلان وطني عالي الجودة، مثالي للصالات الكبيرة والمجالس، ألوان ثابتة لا تتغير.', img: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=400&q=80' },
-            { id: 'B003', name: '200*200 هندي', price: '70', desc: 'بلاط هندي سميك يتحمل الأوزان الثقيلة، مناسب للأحواش والمواقف الخارجية.', img: 'https://images.unsplash.com/photo-1582582494705-f8ce0b0c24f0?auto=format&fit=crop&w=400&q=80' },
-            { id: 'B004', name: '200*400 صيني', price: '35', desc: 'بلاط صيني اقتصادي بتصاميم عصرية تناسب جميع الأذواق والميزانيات.', img: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=400&q=80' }
-        ];
+        // --- 2. سحب المنتجات حياً من جوجل شيت ---
+        const sheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQYKls5k9Fip2uOfBUnEN2FeZG2Dosa4nlImQyPFjhjNx2jFsuVJo45zcD6b7oagAFlQuWdemcoRLH0/pub?gid=0&single=true&output=csv";
+        
+        let dynamicProductsData = [];
 
-        // --- 3. بناء المنتجات ---
-        function renderProducts() {
+        function fetchProductsFromSheet() {
+            Papa.parse(sheetCsvUrl, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    // تصفية الصفوف الفارغة وحفظ البيانات
+                    dynamicProductsData = results.data.filter(item => item.sku && item.name); 
+                    renderDynamicProducts();
+                },
+                error: function(err) {
+                    console.error("خطأ في جلب البيانات:", err);
+                    document.getElementById('products-container').innerHTML = '<p style="text-align:center; padding:20px;">تعذر تحميل المنتجات، تأكد من اتصالك بالإنترنت.</p>';
+                }
+            });
+        }
+
+        // --- 3. بناء المنتجات في الواجهة ديناميكياً ---
+        function renderDynamicProducts() {
             const container = document.getElementById('products-container');
             container.innerHTML = '';
 
-            productsData.forEach(product => {
+            dynamicProductsData.forEach(product => {
+                // صورة افتراضية في حال نسيت وضع رابط صورة في الشيت
+                const imgUrl = product.image_url || 'https://images.unsplash.com/photo-1600607688969-a5bfcd64bd28?auto=format&fit=crop&w=400&q=80';
+
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                card.id = `card-${product.id}`;
+                card.id = `card-${product.sku}`;
                 card.innerHTML = `
                     <div class="checkbox-wrapper">
-                        <input type="checkbox" id="check-${product.id}" onchange="toggleSelection('${product.id}', this)">
+                        <input type="checkbox" id="check-${product.sku}" onchange="toggleSelection('${product.sku}', this)">
                     </div>
-                    <img src="${product.img}" class="product-img" onclick="openModal('${product.id}')">
-                    <div class="product-info" onclick="openModal('${product.id}')">
+                    <img src="${imgUrl}" class="product-img" onclick="openModal('${product.sku}')">
+                    <div class="product-info" onclick="openModal('${product.sku}')">
                         <div class="product-title">${product.name}</div>
                         <div class="product-price">${product.price} ريال / م2</div>
                     </div>
-                    <input type="number" id="qty-${product.id}" class="qty-input" placeholder="الكمية المطلوبة (متر)" min="1" disabled>
+                    <input type="number" id="qty-${product.sku}" class="qty-input" placeholder="الكمية المطلوبة (متر)" min="1" disabled>
                 `;
                 container.appendChild(card);
             });
@@ -320,9 +344,9 @@
 
         // --- 4. إدارة التحديد وفتح خانة الكمية ---
         let selectedCount = 0;
-        function toggleSelection(productId, checkbox) {
-            const cardElement = document.getElementById(`card-${productId}`);
-            const qtyInput = document.getElementById(`qty-${productId}`);
+        function toggleSelection(productSku, checkbox) {
+            const cardElement = document.getElementById(`card-${productSku}`);
+            const qtyInput = document.getElementById(`qty-${productSku}`);
             
             if (checkbox.checked) {
                 cardElement.classList.add('selected');
@@ -339,12 +363,13 @@
         }
 
         // --- 5. نافذة التفاصيل ---
-        function openModal(productId) {
-            const product = productsData.find(p => p.id === productId);
+        function openModal(productSku) {
+            const product = dynamicProductsData.find(p => p.sku === productSku);
             if(product) {
-                document.getElementById('modal-img').src = product.img;
+                const imgUrl = product.image_url || 'https://images.unsplash.com/photo-1600607688969-a5bfcd64bd28?auto=format&fit=crop&w=400&q=80';
+                document.getElementById('modal-img').src = imgUrl;
                 document.getElementById('modal-title').innerText = product.name;
-                document.getElementById('modal-desc').innerText = product.desc;
+                document.getElementById('modal-desc').innerText = product.description || 'لا يوجد وصف متاح.';
                 document.getElementById('modal-price').innerText = product.price + ' ريال / م2';
                 document.getElementById('product-modal').classList.add('show');
             }
@@ -356,20 +381,63 @@
             if(e.target === this) closeModal();
         });
 
-        // --- 6. إرسال الطلب وإظهار الشاشة الكاملة ---
+        // --- 6. حفظ بيانات الحساب يدوياً ---
+        function saveProfileData() {
+            const name = document.getElementById('user-name').value.trim();
+            const phone = document.getElementById('user-phone').value.trim();
+            const company = document.getElementById('user-company').value.trim();
+            const email = document.getElementById('user-email').value.trim();
+            const storeCode = document.getElementById('store-code').value.trim().toUpperCase();
+
+            if (!name || !phone || !company || !email || !storeCode) {
+                alert("يرجى ملء جميع الحقول وإدخال كود التفعيل لحفظ البيانات!");
+                return;
+            }
+
+            const acceptedCodes = ['2026', 'EMAC100', 'EMAC200'];
+            if (!acceptedCodes.includes(storeCode)) {
+                alert("كود تفعيل المحل غير صحيح! يرجى إدخال كود معتمد وموزع من قبل الإدارة.");
+                return;
+            }
+
+            alert("تم حفظ الملف الشخصي وتفعيله بنجاح، يمكنك الآن الانتقال للمنتجات وطلب عروض أسعار.");
+            switchTab('products');
+        }
+
+        // --- 7. التحقق الصارم وإرسال البيانات الحقيقية إلى n8n ---
         function sendQuoteRequest() {
+            const name = document.getElementById('user-name').value.trim();
+            const phone = document.getElementById('user-phone').value.trim();
+            const company = document.getElementById('user-company').value.trim();
+            const email = document.getElementById('user-email').value.trim();
+            const storeCode = document.getElementById('store-code').value.trim().toUpperCase();
+
+            if (!name || !phone || !company || !email || !storeCode) {
+                alert("تنبيه صارم: لا يمكنك طلب تسعيرة قبل إكمال كافة بيانات الملف الشخصي وتفعيل كود المحل!");
+                switchTab('account');
+                return;
+            }
+
+            const acceptedCodes = ['2026', 'EMAC100', 'EMAC200'];
+            if (!acceptedCodes.includes(storeCode)) {
+                alert("كود التفعيل الحالي غير صحيح، يرجى تصحيح كود المحل لتتمكن من إرسال الطلب.");
+                switchTab('account');
+                return;
+            }
+
             const checkedBoxes = document.querySelectorAll('.checkbox-wrapper input:checked');
             if (checkedBoxes.length === 0) {
-                alert("يرجى تحديد منتج واحد على الأقل وإدخال الكمية!");
+                alert("يرجى تحديد منتج واحد على الأقل وإدخال الكمية المطلوبة!");
                 return;
             }
 
             let orderDetails = [];
             let isValid = true;
+            let webhookProducts = [];
 
             checkedBoxes.forEach(cb => {
                 const pId = cb.id.replace('check-', '');
-                const product = productsData.find(p => p.id === pId);
+                const product = dynamicProductsData.find(p => p.sku === pId);
                 const qty = document.getElementById(`qty-${pId}`).value;
                 
                 if(!qty || qty <= 0) {
@@ -378,17 +446,44 @@
                     return;
                 }
                 orderDetails.push(`${product.name} (${qty} متر)`);
+                
+                webhookProducts.push({
+                    product_id: pId,
+                    product_name: product.name,
+                    price_per_meter: product.price,
+                    required_quantity: qty
+                });
             });
 
             if(!isValid) return;
 
-            // إظهار شاشة النجاح الكاملة المحدثة
+            // رابط n8n المبدئي (سنقوم بتحديثه لاحقاً برابط n8n الخاص بك)
+            const n8nWebhookUrl = "YOUR_N8N_WEBHOOK_URL_HERE";
+
+            const payload = {
+                client_name: name,
+                client_phone: phone,
+                client_company: company,
+                client_email: email,
+                store_code: storeCode,
+                order_date: new Date().toLocaleDateString('en-US'),
+                products: webhookProducts
+            };
+
+            // دفع البيانات برمجياً إذا تم توفير الرابط
+            if (n8nWebhookUrl !== "YOUR_N8N_WEBHOOK_URL_HERE") {
+                fetch(n8nWebhookUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => console.log("تم الإرسال!", response))
+                .catch(error => console.error("خطأ:", error));
+            }
+
             document.getElementById('success-modal').classList.add('show');
-            
-            // حقن الطلب الجديد في حالة "قيد الإرسال" (أصفر)
             addDynamicOrder(orderDetails);
             
-            // تصفير الاختيارات بعد الإرسال
             checkedBoxes.forEach(cb => {
                 cb.checked = false;
                 toggleSelection(cb.id.replace('check-', ''), cb);
@@ -397,16 +492,15 @@
 
         function closeSuccessModal() {
             document.getElementById('success-modal').classList.remove('show');
-            switchTab('orders'); // التوجيه التلقائي لسجل الطلبات لمشاهدة الحالة المباشرة
+            switchTab('orders'); 
         }
 
-        // --- 7. التعديل الجديد والمحاكاة الذكية لتغير الألوان والحالة ---
+        // --- 8. المحاكاة البصرية لتغير الحالة (أصفر ثم أخضر) ---
         function addDynamicOrder(productsArray) {
             const tbody = document.getElementById('orders-container');
             const tr = document.createElement('tr');
             const orderId = 'REQ-' + Math.floor(Math.random() * 10000);
             
-            // بناء الصف والحالة الأولية: قيد الإرسال (أصفر)
             tr.innerHTML = `
                 <td><strong>${orderId}</strong></td>
                 <td>${new Date().toLocaleDateString()}</td>
@@ -415,17 +509,15 @@
             `;
             tbody.insertBefore(tr, tbody.firstChild);
 
-            // الحيلة السحرية للعميل: بعد 5 ثوانٍ، كأن n8n أرسل الإيميل، تتحول للون الأخضر (مكتمل)
             setTimeout(() => {
                 const badge = document.getElementById(`badge-${orderId}`);
                 if (badge) {
                     badge.className = 'status completed';
                     badge.innerText = 'مكتمل';
                 }
-            }, 5000); // 5000 ملي ثانية = 5 ثوانٍ من الإبهار البصري للعميل
+            }, 5000); 
         }
 
-        // دالة مخصصة لإنشاء طلبات افتراضية قديمة مكتملة وجاهزة عند تحميل الصفحة أول مرة
         function addStaticOrder(orderId, date, items, statusClass, statusText) {
             const tbody = document.getElementById('orders-container');
             const tr = document.createElement('tr');
@@ -439,8 +531,7 @@
         }
 
         window.onload = () => {
-            renderProducts();
-            // حقن طلب قديم لكي لا تظهر الصفحة فارغة، ويظهر باللون الأخضر مكتملاً
+            fetchProductsFromSheet(); // جلب المنتجات فور فتح التطبيق
             addStaticOrder('REQ-8432', '2026/05/20', ['60*60 اسباني نخب أول (120 متر)'], 'completed', 'مكتمل');
         };
     </script>
