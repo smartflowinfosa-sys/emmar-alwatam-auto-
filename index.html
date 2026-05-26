@@ -36,7 +36,7 @@
     <style>
         /* --- متغيرات الهوية البصرية (ثيم فاتح إجباري) --- */
         :root {
-            color-scheme: light !important; /* يمنع المتصفح من فرض الوضع الداكن */
+            color-scheme: light !important; 
             --brand-red: #800000 !important;
             --brand-red-hover: #b91c1c !important;
             --brand-dark: #2d3748 !important;
@@ -45,9 +45,20 @@
             --border-color: #e2e8f0 !important;
         }
 
-        /* --- الإعدادات الأساسية --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif !important; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--brand-light) !important; color: var(--brand-dark) !important; line-height: 1.6; }
+        /* --- الإعدادات الأساسية وإصلاح تداخل الأيقونات --- */
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        body, html { 
+            font-family: 'Cairo', sans-serif; /* تم نقل الخط هنا لكي لا يعطل الأيقونات */
+            background-color: var(--brand-light) !important; 
+            color: var(--brand-dark) !important; 
+            line-height: 1.6; 
+        }
 
         /* --- الهيدر العلوي --- */
         .top-header { background-color: var(--white); padding: 15px; text-align: center; font-size: 22px; font-weight: 700; color: var(--brand-red); box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 999; display: flex; align-items: center; justify-content: center; gap: 10px; }
