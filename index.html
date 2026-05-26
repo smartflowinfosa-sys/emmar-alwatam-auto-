@@ -15,11 +15,21 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="إعمار الوطن">
 
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(function(OneSignal) {
+        OneSignal.init({
+          appId: "08b7a055-409c-43a9-82bc-9a0b434e65f6",
+        });
+      });
+    </script>
+
     <style>
         /* --- متغيرات الهوية البصرية --- */
         :root {
@@ -32,7 +42,7 @@
         }
 
         /* --- الإعدادات الأساسية --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--brand-light); color: var(--brand-dark); line-height: 1.6; }
 
         /* --- الهيدر العلوي --- */
@@ -457,7 +467,7 @@
 
             if(!isValid) return;
 
-            // رابط n8n المبدئي (سنقوم بتحديثه لاحقاً برابط n8n الخاص بك)
+            // رابط n8n المبدئي
           const n8nWebhookUrl = "https://intercivic-athetosic-bristol.ngrok-free.dev/webhook/quote-request";
             
             const payload = {
