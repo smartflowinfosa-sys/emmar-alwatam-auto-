@@ -19,19 +19,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(function(OneSignal) {
-        OneSignal.init({
-          appId: "08b7a055-409c-43a9-82bc-9a0b434e65f6",
-          notifyButton: {
-            enable: true,
-          },
-        });
-      });
-    </script>
 
     <style>
         /* --- متغيرات الهوية البصرية (ثيم فاتح إجباري) --- */
@@ -54,7 +41,7 @@
         }
         
         body, html { 
-            font-family: 'Cairo', sans-serif; /* تم نقل الخط هنا لكي لا يعطل الأيقونات */
+            font-family: 'Cairo', sans-serif; 
             background-color: var(--brand-light) !important; 
             color: var(--brand-dark) !important; 
             line-height: 1.6; 
@@ -109,10 +96,13 @@
         .qty-input:focus { border-color: var(--brand-red); }
         .qty-input:disabled { background-color: #f1f5f9 !important; cursor: not-allowed; }
 
-        /* زر التسعيرة الجديد (أسفل الصفحة) */
+        /* الأزرار */
         .submit-quote-btn-bottom { background-color: var(--brand-red); color: white; border: none; padding: 10px 25px; border-radius: 25px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; gap: 8px; align-items: center; justify-content: center; margin: 25px auto 10px auto; width: max-content; box-shadow: 0 4px 10px rgba(128,0,0,0.2); }
         .submit-quote-btn-bottom:active { transform: scale(0.96); }
         .badge { background: white; color: var(--brand-red); padding: 2px 6px; border-radius: 10px; font-size: 12px; font-weight: 700; }
+
+        .test-buttons-container { display: flex; gap: 10px; justify-content: center; margin-top: 25px; flex-wrap: wrap; }
+        .test-btn { background-color: var(--brand-dark); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 
         /* --- نافذة التفاصيل (Modal) --- */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; padding: 20px; opacity: 0; transition: opacity 0.3s; }
@@ -180,6 +170,12 @@
                         <h3>خدمة ذاتية</h3>
                         <p>عروض أسعار دون انتظار المندوب</p>
                     </div>
+                </div>
+
+                <div class="test-buttons-container">
+                    <button class="test-btn" onclick="openCamera()"><i class="fa-solid fa-camera"></i> الكاميرا</button>
+                    <button class="test-btn" onclick="getUserLocation()"><i class="fa-solid fa-location-dot"></i> الموقع</button>
+                    <button class="test-btn" onclick="authenticateUser()"><i class="fa-solid fa-fingerprint"></i> البصمة</button>
                 </div>
             </div>
         </div>
@@ -329,7 +325,6 @@
                 download: true,
                 header: true,
                 complete: function(results) {
-                    // تصفية الصفوف الفارغة وحفظ البيانات
                     dynamicProductsData = results.data.filter(item => item.sku && item.name); 
                     renderDynamicProducts();
                 },
@@ -346,7 +341,6 @@
             container.innerHTML = '';
 
             dynamicProductsData.forEach(product => {
-                // صورة افتراضية في حال نسيت وضع رابط صورة في الشيت
                 const imgUrl = product.image_url || 'https://images.unsplash.com/photo-1600607688969-a5bfcd64bd28?auto=format&fit=crop&w=400&q=80';
 
                 const card = document.createElement('div');
@@ -429,7 +423,7 @@
             switchTab('products');
         }
 
-        // --- 7. التحقق الصارم وإرسال البيانات الحقيقية إلى n8n ---
+        // --- 7. إرسال البيانات الحقيقية إلى نظام n8n ---
         function sendQuoteRequest() {
             const name = document.getElementById('user-name').value.trim();
             const phone = document.getElementById('user-phone').value.trim();
@@ -482,8 +476,7 @@
 
             if(!isValid) return;
 
-            // رابط n8n المبدئي
-          const n8nWebhookUrl = "https://intercivic-athetosic-bristol.ngrok-free.dev/webhook/quote-request";
+            const n8nWebhookUrl = "https://intercivic-athetosic-bristol.ngrok-free.dev/webhook/quote-request";
             
             const payload = {
                 client_name: name,
@@ -495,14 +488,13 @@
                 products: webhookProducts
             };
 
-            // دفع البيانات برمجياً إذا تم توفير الرابط
             if (n8nWebhookUrl !== "YOUR_N8N_WEBHOOK_URL_HERE") {
                 fetch(n8nWebhookUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 })
-                .then(response => console.log("تم الإرسال!", response))
+                .then(response => console.log("تم الإرسال لـ n8n!", response))
                 .catch(error => console.error("خطأ:", error));
             }
 
@@ -520,7 +512,7 @@
             switchTab('orders'); 
         }
 
-        // --- 8. المحاكاة البصرية لتغير الحالة (أصفر ثم أخضر) ---
+        // --- 8. المحاكاة البصرية لتغير الحالة ---
         function addDynamicOrder(productsArray) {
             const tbody = document.getElementById('orders-container');
             const tr = document.createElement('tr');
@@ -555,8 +547,72 @@
             tbody.appendChild(tr);
         }
 
+        // --- 9. دوال التكامل العميق مع الأندرويد (Native Android Plugins) ---
+        
+        // تفعيل إشعارات OneSignal الأصلية (Native) عند جاهزية النظام
+        document.addEventListener('deviceready', function() {
+            if (window.plugins && window.plugins.OneSignal) {
+                window.plugins.OneSignal.setAppId("08b7a055-409c-43a9-82bc-9a0b434e65f6");
+                window.plugins.OneSignal.promptForPushNotificationsWithUserResponse(function(accepted) {
+                    console.log("تمت الموافقة على الإشعارات: " + accepted);
+                });
+            }
+        }, false);
+
+        // دالة لطلب الموقع الحالي (GPS)
+        async function getUserLocation() {
+            try {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        alert(`موقعك الحالي:\nخط العرض: ${position.coords.latitude}\nخط الطول: ${position.coords.longitude}`);
+                    }, error => {
+                        alert('الرجاء تفعيل الـ GPS والسماح للتطبيق بالوصول لموقعك');
+                    });
+                }
+            } catch (e) {
+                console.error("فشل الوصول للموقع", e);
+            }
+        }
+
+        // دالة لفتح الكاميرا الأصلية أو المعرض
+        function openCamera() {
+            let fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.capture = 'environment';
+            fileInput.onchange = e => {
+                let file = e.target.files[0];
+                if(file) alert("تم التقاط/اختيار الصورة بنجاح: " + file.name);
+            };
+            fileInput.click();
+        }
+
+        // دالة لطلب بصمة الإصبع أو الوجه (Biometrics)
+        async function authenticateUser() {
+            try {
+                if (window.Capacitor && window.Capacitor.Plugins.NativeBiometric) {
+                    const result = await window.Capacitor.Plugins.NativeBiometric.isAvailable();
+                    if(result.isAvailable) {
+                        const verified = await window.Capacitor.Plugins.NativeBiometric.verifyIdentity({
+                            reason: "الرجاء تأكيد هويتك للوصول إلى بيانات المحل",
+                            title: "تسجيل الدخول الآمن",
+                            subtitle: "إعمار الوطن",
+                            description: "استخدم البصمة أو التعرف على الوجه"
+                        });
+                        alert("تم التحقق بنجاح! مرحباً بك.");
+                    } else {
+                        alert("جهازك لا يدعم نظام البصمة.");
+                    }
+                } else {
+                    alert("نظام البصمة يعمل فقط عند تصدير التطبيق النهائي (APK).");
+                }
+            } catch (error) {
+                alert("فشل التحقق من البصمة أو تم الإلغاء.");
+            }
+        }
+
         window.onload = () => {
-            fetchProductsFromSheet(); // جلب المنتجات فور فتح التطبيق
+            fetchProductsFromSheet(); 
             addStaticOrder('REQ-8432', '2026/05/20', ['60*60 اسباني نخب أول (120 متر)'], 'completed', 'مكتمل');
         };
     </script>
