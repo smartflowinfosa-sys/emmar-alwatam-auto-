@@ -216,28 +216,35 @@
             </div>
             <div class="account-card">
                 <div class="form-group">
-                    <label>الاسم الكامل</label>
+                    <label>الاسم الكامل <span style="color: red;">*</span></label>
                     <input type="text" id="user-name" placeholder="" oninput="this.value = this.value.replace(/[^a-zA-Z\u0600-\u06FF\s]/g, '')">
                 </div>
                 <div class="form-group">
-                    <label>رقم الجوال (الواتساب)</label>
+                    <label>رقم الجوال (الواتساب) <span style="color: red;">* إجباري</span></label>
                     <input type="tel" id="user-phone" placeholder="" value="+966 " dir="ltr" style="text-align: left;">
                 </div>
                 <div class="form-group">
-                    <label>اسم الشركة او المحل</label>
+                    <label>اسم الشركة او المحل <span style="color: red;">*</span></label>
                     <input type="text" id="user-company" placeholder="">
                 </div>
-                <div class="form-group">
-                    <label>البريد الالكتروني</label>
-                    <input type="email" id="user-email" placeholder="">
+                
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 15px; margin-bottom: 5px;">
+                    <input type="checkbox" id="want-email" onchange="toggleEmailField(this)" style="width: 18px; height: 18px; accent-color: var(--brand-red); cursor: pointer;">
+                    <label for="want-email" style="margin-bottom: 0; cursor: pointer; font-weight: 700; font-size: 14px;">تفعيل استلام نسخة عبر البريد الإلكتروني</label>
                 </div>
+                
+                <div class="form-group">
+                    <label id="email-label" style="color: #a0aec0;">البريد الالكتروني <span id="email-required-text" style="color: gray; font-size: 12px; font-weight: 600;">(غير نشط)</span></label>
+                    <input type="email" id="user-email" placeholder="example@domain.com" disabled>
+                </div>
+
                 <div class="form-group" style="border: 2px dashed var(--brand-red); padding: 15px; border-radius: 8px; background: #fff5f5;">
-                    <label style="color: var(--brand-red); font-weight: bold;"><i class="fa-solid fa-key"></i> كود تفعيل المحل المعتمد</label>
+                    <label style="color: var(--brand-red); font-weight: bold;"><i class="fa-solid fa-key"></i> كود تفعيل المحل المعتمد <span style="color: red;">*</span></label>
                     <input type="text" id="store-code" placeholder="" style="text-transform: uppercase;">
                 </div>
                 <button class="save-btn" onclick="saveProfileData()">حفظ وتفعيل البيانات</button>
                 <div class="account-note">
-                    * يرجى العلم: لن يقبل النظام أي طلب تسعير إذا كانت البيانات ناقصة أو كود تفعيل المحل غير مطابق.
+                    * يرجى العلم: لن يقبل النظام أي طلب تسعير إذا كانت البيانات الأساسية ناقصة أو كود تفعيل المحل غير مطابق.
                 </div>
             </div>
         </div>
@@ -258,7 +265,7 @@
 
     <div id="success-modal" class="success-overlay">
         <i class="fa-solid fa-circle-check success-icon"></i>
-        <div class="success-text">تم استلام طلبكم سيتم ارسال عرض السعر على الايميل خلال ثواني</div>
+        <div class="success-text">تم استلام طلبكم سيتم ارسال عرض السعر على الواتساب (والإيميل إن وجد) خلال ثواني</div>
         <button class="success-btn" onclick="closeSuccessModal()">إغلاق ومتابعة الطلبات</button>
     </div>
 
@@ -273,7 +280,7 @@
             <i class="fa-solid fa-list-check"></i>الطلبات
         </button>
         <button class="nav-btn" onclick="switchTab('account')">
-            <i class="fa-solid fa-user"></i>الحساب
+            <i class="fa-solid = fa-user"></i>الحساب
         </button>
     </nav>
 
@@ -304,6 +311,27 @@
             }
 
             window.scrollTo(0, 0);
+        }
+
+        // --- دالة التحكم الديناميكي بحقل الإيميل عبر الـ Checkbox ---
+        function toggleEmailField(checkbox) {
+            const emailInput = document.getElementById('user-email');
+            const emailLabel = document.getElementById('email-label');
+            const requiredText = document.getElementById('email-required-text');
+            
+            if (checkbox.checked) {
+                emailInput.disabled = false;
+                emailLabel.style.color = 'var(--brand-dark)';
+                requiredText.innerText = '* إجباري';
+                requiredText.style.color = 'red';
+                emailInput.focus();
+            } else {
+                emailInput.disabled = true;
+                emailInput.value = '';
+                emailLabel.style.color = '#a0aec0';
+                requiredText.innerText = '(غير نشط)';
+                requiredText.style.color = 'gray';
+            }
         }
 
         // --- 2. سحب المنتجات حياً من جوجل شيت ---
@@ -397,10 +425,19 @@
             const phone = document.getElementById('user-phone').value.trim();
             const company = document.getElementById('user-company').value.trim();
             const email = document.getElementById('user-email').value.trim();
+            const wantEmail = document.getElementById('want-email').checked; // حالة التشيك بوكس
             const storeCode = document.getElementById('store-code').value.trim().toUpperCase();
 
-            if (!name || !phone || !company || !email || !storeCode) {
-                alert("يرجى ملء جميع الحقول وإدخال كود التفعيل لحفظ البيانات!");
+            // التحقق من الحقول الأساسية أولاً
+            if (!name || !phone || !company || !storeCode) {
+                alert("يرجى ملء جميع الحقول الإجبارية وإدخال كود التفعيل لحفظ البيانات!");
+                return;
+            }
+
+            // شرط التحقق الذكي: إذا حدد خيار الإيميل، نلجمه بكتابته
+            if (wantEmail && !email) {
+                alert("يرجى إدخال البريد الإلكتروني، بما أنك قمت بتفعيل خيار استلام نسخة عبره!");
+                document.getElementById('user-email').focus();
                 return;
             }
 
@@ -420,11 +457,20 @@
             const phone = document.getElementById('user-phone').value.trim();
             const company = document.getElementById('user-company').value.trim();
             const email = document.getElementById('user-email').value.trim();
+            const wantEmail = document.getElementById('want-email').checked; // حالة التشيك بوكس
             const storeCode = document.getElementById('store-code').value.trim().toUpperCase();
 
-            if (!name || !phone || !company || !email || !storeCode) {
-                alert("تنبيه صارم: لا يمكنك طلب تسعيرة قبل إكمال كافة بيانات الملف الشخصي وتفعيل كود المحل!");
+            if (!name || !phone || !company || !storeCode) {
+                alert("تنبيه صارم: لا يمكنك طلب تسعيرة قبل إكمال كافة البيانات الإجبارية للملف الشخصي وتفعيل كود المحل!");
                 switchTab('account');
+                return;
+            }
+
+            // شرط التحقق الذكي عند الإرسال أيضاً
+            if (wantEmail && !email) {
+                alert("يرجى تصحيح بيانات الحساب: لقد قمت بتفعيل خيار البريد الإلكتروني ولكن الحقل فارغ!");
+                switchTab('account');
+                document.getElementById('user-email').focus();
                 return;
             }
 
@@ -473,7 +519,7 @@
                 client_name: name,
                 client_phone: phone,
                 client_company: company,
-                client_email: email,
+                client_email: wantEmail ? email : "", // نرسل الإيميل فقط إذا كان محدد الخيار
                 store_code: storeCode,
                 order_date: new Date().toLocaleDateString('en-US'),
                 products: webhookProducts
@@ -540,7 +586,6 @@
 
         // --- 9. دوال التكامل العميق مع الأندرويد (Native Android Plugins) ---
         
-        // تفعيل إشعارات OneSignal الأصلية (Native) عند جاهزية النظام
         document.addEventListener('deviceready', function() {
             if (window.plugins && window.plugins.OneSignal) {
                 window.plugins.OneSignal.setAppId("08b7a055-409c-43a9-82bc-9a0b434e65f6");
