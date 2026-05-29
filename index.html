@@ -280,7 +280,7 @@
             <i class="fa-solid fa-list-check"></i>الطلبات
         </button>
         <button class="nav-btn" onclick="switchTab('account')">
-            <i class="fa-solid = fa-user"></i>الحساب
+            <i class="fa-solid fa-user"></i>الحساب
         </button>
     </nav>
 
@@ -513,7 +513,8 @@
 
             if(!isValid) return;
 
-            const n8nWebhookUrl = "https://intercivic-athetosic-bristol.ngrok-free.dev/webhook/quote-request";
+            // --- هذا هو السطر الذي تم تحديثه ليربط بسيرفرك الجديد ---
+            const n8nWebhookUrl = "https://n8n-p10bgpahkliy9hghak21zv3e.178.105.219.96.sslip.io/webhook/quote-request";
             
             const payload = {
                 client_name: name,
